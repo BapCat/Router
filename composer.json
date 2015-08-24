@@ -1,0 +1,24 @@
+{
+  "name": "bapcat/router",
+  "description": "",
+  "license": "GPLv3",
+  "homepage": "http://github.com/BapCat/Router",
+  "keywords": [],
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "Corey Frenette",
+      "email": "corey@narwhunderful.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.0",
+    "bapcat/interfaces": "^1.0",
+    "bapcat/values": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "BapCat\\Router\\": "src/"
+    }
+  }
+}
