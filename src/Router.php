@@ -25,7 +25,7 @@ class Router {
   
   //TODO: alias
   private function addRoute(HttpMethod $method, $alias, $route, $action) {
-    $segments = explode('/', $this->trimLeadingSlash($route));
+    $segments = explode('/', $this->trimSlashes($route));
     
     $sub_route = &$this->routes;
     foreach($segments as $index => $segment) {
@@ -38,13 +38,17 @@ class Router {
   }
   
   public function findActionForRoute(HttpMethod $method, $route) {
-    $segments = explode('/', $this->trimLeadingSlash($route));
+    $segments = explode('/', $this->trimSlashes($route));
     $segments[] = "__$method";
     
     $sub_route = &$this->routes;
     foreach($segments as $index => $segment) {
       if(!array_key_exists($segment, $sub_route)) {
-        throw new RouteNotFoundException($route);
+        $segment = $this->findDynamicSubroute($sub_route);
+        
+        if($segment === null) {
+          throw new RouteNotFoundException($route);
+        }
       }
       
       $sub_route = &$sub_route[$segment];
@@ -53,14 +57,20 @@ class Router {
     return $sub_route;
   }
   
-  private function trimLeadingSlash($route) {
-    if(strlen($route) != 0) {
-      if($route[0] === '/') {
-        return substr($route, 1);
+  private function trimSlashes($route) {
+    return trim($route, '/');
+  }
+  
+  private function findDynamicSubroute(array $routes) {
+    foreach($routes as $segment => $subroutes) {
+      if(strlen($segment) !== 0) {
+        if($segment[0] === ':') {
+          return $segment;
+        }
       }
     }
     
-    return $route;
+    return null;
   }
   
   public function dumpRoutes() {

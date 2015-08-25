@@ -21,6 +21,6 @@ echo $router->findActionForRoute(HttpMethod::GET(), '');
 echo "\n\n";
 echo $router->findActionForRoute(HttpMethod::GET(), 'users');
 echo "\n\n";
-echo $router->findActionForRoute(HttpMethod::GET(), 'users/:user');
+echo $router->findActionForRoute(HttpMethod::GET(), 'users/1');
 echo "\n\n";
-echo $router->findActionForRoute(HttpMethod::DELETE(), 'users/:user');
+echo $router->findActionForRoute(HttpMethod::DELETE(), 'users/1');
