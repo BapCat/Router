@@ -1,11 +1,18 @@
 <?php namespace BapCat\Router;
 
+use BapCat\Interfaces\Ioc\Ioc;
 use BapCat\Values\HttpMethod;
 
+use TRex\Reflection\CallableReflection;
+
 class Router {
-  private $routes = [
-    '' => []
-  ];
+  private $ioc;
+  
+  private $routes = [];
+  
+  public function __construct(Ioc $ioc) {
+    $this->ioc = $ioc;
+  }
   
   public function get($alias, $route, callable $action) {
     $this->addRoute(HttpMethod::GET(), $alias, $route, $action);
@@ -37,7 +44,7 @@ class Router {
     }
   }
   
-  public function findActionForRoute(HttpMethod $method, $route) {
+  public function findActionByRoute(HttpMethod $method, $route) {
     $segments = explode('/', $this->trimSlashes($route));
     $segments[] = "__$method";
     
@@ -55,6 +62,35 @@ class Router {
     }
     
     return $sub_route;
+  }
+  
+  public function executeRoute(HttpMethod $method, $route, $post) {
+    $action = $this->findActionByRoute($method, $route);
+    $params = $this->getActionTypeHints($action);
+    
+    $args = [];
+    foreach($post as $name => $value) {
+      if(array_key_exists($name, $params)) {
+        $args[$name] = $this->ioc->make($params[$name], [$value]);
+      }
+    }
+    
+    return $this->ioc->call($action, $args);
+  }
+  
+  private function getActionTypeHints(callable $action) {
+    $reflector = new CallableReflection($action);
+    $method = $reflector->getReflector();
+    $params = $method->getParameters();
+    
+    $mapped = [];
+    foreach($params as $param) {
+      if($param->getClass() !== null) {
+        $mapped[$param->getName()] = $param->getClass()->getName();
+      }
+    }
+    
+    return $mapped;
   }
   
   private function trimSlashes($route) {
