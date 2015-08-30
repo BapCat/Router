@@ -29,7 +29,7 @@ class Request {
   
   public function __construct($uri, HttpMethod $method, $host, array $query = [], array $request = []) {
     $this->uri     = $uri;
-    $this->method  = 'aaaaaaaaa';//$method;
+    $this->method  = $method;
     $this->host    = $host;
     $this->query   = $query;
     $this->request = $request;
