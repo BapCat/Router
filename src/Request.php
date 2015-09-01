@@ -3,11 +3,13 @@
 use BapCat\Propifier\PropifierTrait;
 use BapCat\Values\HttpMethod;
 
+use ArrayIterator;
+
 class Request {
   use PropifierTrait;
   
-  private $uri;
   private $method;
+  private $uri;
   private $host;
   
   private $query;
@@ -27,48 +29,28 @@ class Request {
     );
   }
   
-  public function __construct($uri, HttpMethod $method, $host, array $query = [], array $request = []) {
-    $this->uri     = $uri;
+  public function __construct(HttpMethod $method, $uri, $host, array $query = [], array $request = []) {
     $this->method  = $method;
+    $this->uri     = $uri;
     $this->host    = $host;
     $this->query   = $query;
     $this->request = $request;
-  }
-  
-  protected function getUri() {
-    return $this->uri;
   }
   
   protected function getMethod() {
     return $this->method;
   }
   
+  protected function getUri() {
+    return $this->uri;
+  }
+  
   protected function getHost() {
     return $this->host;
   }
   
-  protected function getQuery($key) {
-    if(!$this->hasQuery($key)) {
-      throw new NoSuchValueException("Query does not contain [$key]");
-    }
-    
-    return $this->query[$key];
-  }
-  
-  protected function getRequest($key) {
-    if(!$this->hasRequest($key)) {
-      throw new NoSuchValueException("Request does not contain [$key]");
-    }
-    
-    return $this->request[$key];
-  }
-  
   public function hasQuery($key) {
     return isset($this->query[$key]);
-  }
-  
-  public function hasRequest($key) {
-    return isset($this->request[$key]);
   }
   
   public function query($key, $default = null) {
@@ -79,11 +61,39 @@ class Request {
     return $default;
   }
   
+  protected function getQuery($key) {
+    if(!$this->hasQuery($key)) {
+      throw new NoSuchValueException("Query does not contain [$key]");
+    }
+    
+    return $this->query[$key];
+  }
+  
+  protected function itrQuery() {
+    return new ArrayIterator($this->query);
+  }
+  
+  public function hasRequest($key) {
+    return isset($this->request[$key]);
+  }
+  
   public function request($key, $default = null) {
     if($this->hasRequest($key)) {
       return $this->request[$key];
     }
     
     return $default;
+  }
+  
+  protected function getRequest($key) {
+    if(!$this->hasRequest($key)) {
+      throw new NoSuchValueException("Request does not contain [$key]");
+    }
+    
+    return $this->request[$key];
+  }
+  
+  protected function itrRequest() {
+    return new ArrayIterator($this->request);
   }
 }

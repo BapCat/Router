@@ -64,12 +64,12 @@ class Router {
     return $sub_route;
   }
   
-  public function executeRoute(HttpMethod $method, $route, $post) {
-    $action = $this->findActionByRoute($method, $route);
+  public function routeRequestToAction(Request $request) {
+    $action = $this->findActionByRoute($request->method, $this->trimSlashes($request->uri));
     $params = $this->getActionTypeHints($action);
     
     $args = [];
-    foreach($post as $name => $value) {
+    foreach($request->request as $name => $value) {
       if(array_key_exists($name, $params)) {
         $args[$name] = $this->ioc->make($params[$name], [$value]);
       }

@@ -15,7 +15,7 @@
     "php": ">=5.5.0",
     "bapcat/interfaces": "^1.0",
     "bapcat/phi": "^1.2",
-    "bapcat/propifier": "^1.0.1",
+    "bapcat/propifier": "^1.1.0",
     "bapcat/values": "dev-master",
     "raphhh/trex-reflection": "^0.1.1"
   },
