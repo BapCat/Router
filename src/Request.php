@@ -15,7 +15,7 @@ class Request {
   
   public static function fromGlobals() {
     if(php_sapi_name() === 'cli') {
-      throw new InvalidStateException('Requests can not be instantiated in CLI mode');
+      throw new InvalidStateException('Requests can not be instantiated from globals in CLI mode');
     }
     
     return new static(
@@ -48,10 +48,42 @@ class Request {
   }
   
   protected function getQuery($key) {
+    if(!$this->hasQuery($key)) {
+      throw new NoSuchValueException("Query does not contain [$key]");
+    }
+    
     return $this->query[$key];
   }
   
   protected function getRequest($key) {
+    if(!$this->hasRequest($key)) {
+      throw new NoSuchValueException("Request does not contain [$key]");
+    }
+    
     return $this->request[$key];
+  }
+  
+  public function hasQuery($key) {
+    return isset($this->query[$key]);
+  }
+  
+  public function hasRequest($key) {
+    return isset($this->request[$key]);
+  }
+  
+  public function query($key, $default = null) {
+    if($this->hasQuery($key)) {
+      return $this->query[$key];
+    }
+    
+    return $default;
+  }
+  
+  public function request($key, $default = null) {
+    if($this->hasRequest($key)) {
+      return $this->request[$key];
+    }
+    
+    return $default;
   }
 }
