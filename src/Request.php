@@ -3,11 +3,13 @@
 use BapCat\Propifier\PropifierTrait;
 use BapCat\Values\HttpMethod;
 
+use ArrayIterator;
+
 class Request {
   use PropifierTrait;
   
-  private $uri;
   private $method;
+  private $uri;
   private $host;
   
   private $query;
@@ -27,20 +29,20 @@ class Request {
     );
   }
   
-  public function __construct($uri, HttpMethod $method, $host, array $query = [], array $request = []) {
-    $this->uri     = $uri;
+  public function __construct(HttpMethod $method, $uri, $host, array $query = [], array $request = []) {
     $this->method  = $method;
+    $this->uri     = $uri;
     $this->host    = $host;
     $this->query   = $query;
     $this->request = $request;
   }
   
-  protected function getUri() {
-    return $this->uri;
-  }
-  
   protected function getMethod() {
     return $this->method;
+  }
+  
+  protected function getUri() {
+    return $this->uri;
   }
   
   protected function getHost() {
@@ -51,7 +53,15 @@ class Request {
     return $this->query[$key];
   }
   
+  protected function itrQuery() {
+    return new ArrayIterator($this->query);
+  }
+  
   protected function getRequest($key) {
     return $this->request[$key];
+  }
+  
+  protected function itrRequest() {
+    return new ArrayIterator($this->request);
   }
 }
