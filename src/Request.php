@@ -12,29 +12,29 @@ class Request {
   private $uri;
   private $host;
   
-  private $query;
-  private $request;
+  private $input;
   
   public static function fromGlobals() {
     if(php_sapi_name() === 'cli') {
       throw new InvalidStateException('Requests can not be instantiated from globals in CLI mode');
     }
     
+    $method = HttpMethod::memberByKey($_SERVER['REQUEST_METHOD'], false);
+    $input  = $method === HttpMethod::GET() ? $_GET : $_POST;
+    
     return new static(
-      HttpMethod::memberByKey($_SERVER['REQUEST_METHOD'], false),
+      $method,
       strtok($_SERVER['REQUEST_URI'], '?'),
       $_SERVER['HTTP_HOST'],
-      $_GET,
-      $_POST
+      $input
     );
   }
   
-  public function __construct(HttpMethod $method, $uri, $host, array $query = [], array $request = []) {
-    $this->method  = $method;
-    $this->uri     = $uri;
-    $this->host    = $host;
-    $this->query   = $query;
-    $this->request = $request;
+  public function __construct(HttpMethod $method, $uri, $host, array $input = []) {
+    $this->method = $method;
+    $this->uri    = $uri;
+    $this->host   = $host;
+    $this->input  = $input;
   }
   
   protected function getMethod() {
@@ -49,51 +49,27 @@ class Request {
     return $this->host;
   }
   
-  public function hasQuery($key) {
-    return isset($this->query[$key]);
+  public function hasInput($key) {
+    return isset($this->input[$key]);
   }
   
-  public function query($key, $default = null) {
-    if($this->hasQuery($key)) {
-      return $this->query[$key];
+  public function input($key, $default = null) {
+    if($this->hasInput($key)) {
+      return $this->input[$key];
     }
     
     return $default;
   }
   
-  protected function getQuery($key) {
-    if(!$this->hasQuery($key)) {
-      throw new NoSuchValueException("Query does not contain [$key]");
+  protected function getInput($key) {
+    if(!$this->hasInput($key)) {
+      throw new NoSuchValueException("Input does not contain [$key]");
     }
     
-    return $this->query[$key];
+    return $this->input[$key];
   }
   
-  protected function itrQuery() {
-    return new ArrayIterator($this->query);
-  }
-  
-  public function hasRequest($key) {
-    return isset($this->request[$key]);
-  }
-  
-  public function request($key, $default = null) {
-    if($this->hasRequest($key)) {
-      return $this->request[$key];
-    }
-    
-    return $default;
-  }
-  
-  protected function getRequest($key) {
-    if(!$this->hasRequest($key)) {
-      throw new NoSuchValueException("Request does not contain [$key]");
-    }
-    
-    return $this->request[$key];
-  }
-  
-  protected function itrRequest() {
-    return new ArrayIterator($this->request);
+  protected function itrInput() {
+    return new ArrayIterator($this->input);
   }
 }

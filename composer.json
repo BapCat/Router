@@ -13,9 +13,10 @@
   ],
   "require": {
     "php": ">=5.5.0",
-    "bapcat/interfaces": "^1.0",
+    "bapcat/interfaces": "dev-master as 1.0",
     "bapcat/phi": "dev-master",
     "bapcat/propifier": "^1.1.0",
+    "bapcat/remodel": "dev-master",
     "bapcat/values": "dev-master",
     "raphhh/trex-reflection": "^0.1.1"
   },

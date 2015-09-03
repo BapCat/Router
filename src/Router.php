@@ -8,10 +8,15 @@ use TRex\Reflection\CallableReflection;
 class Router {
   private $ioc;
   
-  private $routes = [];
+  private $mappings = [];
+  private $routes   = [];
   
   public function __construct(Ioc $ioc) {
     $this->ioc = $ioc;
+  }
+  
+  public function map($param, $alias, callable $callback) {
+    $this->mappings[$param] = ['alias' => $alias, 'callback' => $callback];
   }
   
   public function get($alias, $route, callable $action) {
@@ -66,25 +71,31 @@ class Router {
   
   public function routeRequestToAction(Request $request) {
     $action = $this->findActionByRoute($request->method, $this->trimSlashes($request->uri));
-    $params = $this->getActionTypeHints($action);
     
+    $params = $this->getCallableTypeHints($action);
     $args = [];
+    
     foreach($params as $name => $type) {
-      if(in_array($request->method, [HttpMethod::POST(), HttpMethod::PUT(), HttpMethod::DELETE()])) {
-        if($request->hasRequest($name)) {
-          $args[$name] = $this->ioc->make($params[$name], [$request->request[$name]]);
-        }
+      if(!array_key_exists($name, $this->mappings)) {
+        $args[$name] = $this->ioc->make($params[$name], [$request->input[$name]]);
       } else {
-        if($request->hasQuery($name)) {
-          $args[$name] = $this->ioc->make($params[$name], [$request->query[$name]]);
+        $mapping = $this->mappings[$name];
+        
+        $callback_params = $this->getCallableTypeHints($mapping['callback']);
+        $callback_args = [];
+        
+        foreach($callback_params as $callback_name => $callback_type) {
+          $callback_args[$callback_name] = $this->ioc->make($callback_params[$callback_name], [$request->input[$callback_name]]);
         }
+        
+        $args[$name] = $this->ioc->call($mapping['callback'], $callback_args);
       }
     }
     
     return $this->ioc->call($action, $args);
   }
   
-  private function getActionTypeHints(callable $action) {
+  private function getCallableTypeHints(callable $action) {
     $reflector = new CallableReflection($action);
     $method = $reflector->getReflector();
     $params = $method->getParameters();
