@@ -21,8 +21,8 @@ class Request {
     }
     
     return new static(
-      $_SERVER['REQUEST_URI'],
-      $_SERVER['REQUEST_METHOD'],
+      HttpMethod::memberByKey($_SERVER['REQUEST_METHOD'], false),
+      strtok($_SERVER['REQUEST_URI'], '?'),
       $_SERVER['HTTP_HOST'],
       $_GET,
       $_POST
