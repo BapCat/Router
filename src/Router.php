@@ -69,9 +69,15 @@ class Router {
     $params = $this->getActionTypeHints($action);
     
     $args = [];
-    foreach($request->request as $name => $value) {
-      if(array_key_exists($name, $params)) {
-        $args[$name] = $this->ioc->make($params[$name], [$value]);
+    foreach($params as $name => $type) {
+      if(in_array($request->method, [HttpMethod::POST(), HttpMethod::PUT(), HttpMethod::DELETE()])) {
+        if($request->hasRequest($name)) {
+          $args[$name] = $this->ioc->make($params[$name], [$request->request[$name]]);
+        }
+      } else {
+        if($request->hasQuery($name)) {
+          $args[$name] = $this->ioc->make($params[$name], [$request->query[$name]]);
+        }
       }
     }
     
