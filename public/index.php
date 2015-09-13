@@ -62,14 +62,16 @@ $registry->register($def);
 
 $user_repo = new UserRepository(Phi::instance(), new UserGateway($connection));
 
+Phi::instance()->bind(UserRepository::class, $user_repo);
+
 
 
 
 $router = new BapCat\Router\Router(Phi::instance());
 
-$router->map('user', 'user_id', function(UserId $user_id) use($user_repo) {
+/*$router->map('user', 'user_id', function(UserId $user_id) use($user_repo) {
   return $user_repo->withId($user_id)->first();
-});
+});*/
 
 $router->get('', '/', function() {
   return 'Test';
@@ -84,16 +86,18 @@ $router->get('', '/test', function(Text $test = null) {
 });
 
 $router->get('', '/user', function(User $user) {
-  return 'Got user ' . $user->id;
+  return $user;
 });
 
-$request = Request::fromGlobals();
-/*$request = new Request(
-  HttpMethod::POST(),
+//$request = Request::fromGlobals();
+
+$request = new Request(
+  HttpMethod::memberByKey($_SERVER['REQUEST_METHOD'], false),
   strtok($_SERVER['REQUEST_URI'], '?'),
   $_SERVER['HTTP_HOST'],
-  ['user_id' => 1]
-);*/
+  array_merge(getallheaders(), ['Accept' => 'application/ajax']),
+  $_GET
+);
 
 try {
   echo $router->routeRequestToAction($request);

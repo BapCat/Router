@@ -11,7 +11,7 @@ class Request {
   private $method;
   private $uri;
   private $host;
-  
+  private $headers;
   private $input;
   
   public static function fromGlobals() {
@@ -26,15 +26,17 @@ class Request {
       $method,
       strtok($_SERVER['REQUEST_URI'], '?'),
       $_SERVER['HTTP_HOST'],
+      getallheaders(),
       $input
     );
   }
   
-  public function __construct(HttpMethod $method, $uri, $host, array $input = []) {
-    $this->method = $method;
-    $this->uri    = $uri;
-    $this->host   = $host;
-    $this->input  = $input;
+  public function __construct(HttpMethod $method, $uri, $host, array $headers, array $input = []) {
+    $this->method  = $method;
+    $this->uri     = $uri;
+    $this->host    = $host;
+    $this->headers = $headers;
+    $this->input   = $input;
   }
   
   protected function getMethod() {
@@ -47,6 +49,34 @@ class Request {
   
   protected function getHost() {
     return $this->host;
+  }
+  
+  protected function getIsJson() {
+    return $this->header('Accept') === 'application/ajax';
+  }
+  
+  public function hasHeader($key) {
+    return isset($this->headers[$key]);
+  }
+  
+  public function header($key, $default = null) {
+    if($this->hasHeader($key)) {
+      return $this->headers[$key];
+    }
+    
+    return $default;
+  }
+  
+  protected function getHeader($key) {
+    if(!$this->hasHeader($key)) {
+      throw new NoSuchValueException("Header does not contain [$key]");
+    }
+    
+    return $this->headers[$key];
+  }
+  
+  protected function itrHeader() {
+    return new ArrayIterator($this->headers);
   }
   
   public function hasInput($key) {

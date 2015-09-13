@@ -1,15 +1,10 @@
 <?php namespace BapCat\Router;
 
-use Exception;
+use BapCat\Values\HttpMethod;
+use BapCat\Values\HttpStatusCode;
 
-class RouteNotFoundException extends Exception {
-  private $route;
-  
-  public function __construct($route) {
-    $this->route = $route;
-  }
-  
-  public function getRoute() {
-    return $this->route;
+class RouteNotFoundException extends RoutingException {
+  public function __construct(HttpMethod $method, $route) {
+    parent::__construct(HttpStatusCode::NOT_FOUND(), $method, $route);
   }
 }
