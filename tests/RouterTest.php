@@ -25,12 +25,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     $filesystem = new FilesystemDriver(__DIR__ . '/../cache');
     $compiled   = $filesystem->get('/');
     
-    $finder   = new RouterTemplateFinder($compiled);
-    $compiler = new PhpCompiler();
+    $finder = new RouterTemplateFinder($compiled);
     
-    $tailor = new Tailor($finder, $compiler);
-    
-    $this->router = new Router($ioc, $tailor);
+    $this->router = new Router($ioc, $finder);
   }
   
   public function testAddingAndFindingRegularRoutes() {

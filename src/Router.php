@@ -2,6 +2,7 @@
 
 use BapCat\Interfaces\Ioc\Ioc;
 use BapCat\Remodel\Entity;
+use BapCat\Tailor\Compilers\PhpCompiler;
 use BapCat\Tailor\Tailor;
 use BapCat\Values\HttpMethod;
 
@@ -17,9 +18,9 @@ class Router {
   private $mappings = [];
   private $routes   = [];
   
-  public function __construct(Ioc $ioc, Tailor $tailor) {
+  public function __construct(Ioc $ioc, RouterTemplateFinder $finder) {
     $this->ioc    = $ioc;
-    $this->tailor = $tailor;
+    $this->tailor = $ioc->make(Tailor::class, [$finder, $ioc->make(PhpCompiler::class)]);
   }
   
   public function map($param, $alias, callable $callback) {
