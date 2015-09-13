@@ -13,17 +13,16 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use BapCat\Persist\Drivers\Filesystem\FilesystemDriver;
 use BapCat\Tailor\Tailor;
-use BapCat\Tailor\PersistTemplateFinder;
+use BapCat\Remodel\RemodelTemplateFinder;
 use BapCat\Tailor\Compilers\PhpCompiler;
 use Illuminate\Database\MySqlConnection;
 
 // Grab filesystem directories
 $persist = new FilesystemDriver(__DIR__ . '/..');
-$templates = $persist->get('/vendor/bapcat/remodel/templates');
-$compiled  = $persist->get('/cache');
+$compiled = $persist->get('/cache');
 
 // TemplateFinders are able to find and use raw/compiled templates
-$finder = new PersistTemplateFinder($templates, $compiled);
+$finder = new RemodelTemplateFinder($compiled);
 
 // Compilers translate raw templates into compiled ones
 $compiler = new PhpCompiler();

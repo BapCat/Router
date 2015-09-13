@@ -65,7 +65,7 @@ class Router {
         $segment = $this->findDynamicSubroute($sub_route);
         
         if($segment === null) {
-          throw new RouteNotFoundException($route);
+          throw new RouteNotFoundException($method, $route);
         }
       }
       
