@@ -2,6 +2,7 @@
 
 use BapCat\Interfaces\Ioc\Ioc;
 use BapCat\Remodel\Entity;
+use BapCat\Tailor\Tailor;
 use BapCat\Values\HttpMethod;
 
 use TRex\Reflection\CallableReflection;
@@ -16,8 +17,9 @@ class Router {
   private $mappings = [];
   private $routes   = [];
   
-  public function __construct(Ioc $ioc) {
-    $this->ioc = $ioc;
+  public function __construct(Ioc $ioc, Tailor $tailor) {
+    $this->ioc    = $ioc;
+    $this->tailor = $tailor;
   }
   
   public function map($param, $alias, callable $callback) {
@@ -38,6 +40,17 @@ class Router {
   
   public function delete($alias, $route, callable $action) {
     $this->addRoute(HttpMethod::DELETE(), $alias, $route, $action);
+  }
+  
+  public function controller($class_name) {
+    $parts = explode('\\', $class_name);
+    
+    $options = [
+      'name'       => array_pop($parts),
+      'controller' => $class_name
+    ];
+    
+    $this->tailor->bind($options['name'], 'ControllerFacade', $options);
   }
   
   //TODO: alias

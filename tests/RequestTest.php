@@ -6,12 +6,13 @@ use BapCat\Values\HttpMethod;
 
 class RequestTest extends PHPUnit_Framework_TestCase {
   public function setUp() {
-    $this->method = HttpMethod::POST();
-    $this->uri    = '/test';
-    $this->host   = 'example.com';
-    $this->input  = [1];
+    $this->method  = HttpMethod::POST();
+    $this->uri     = '/test';
+    $this->host    = 'example.com';
+    $this->headers = [];
+    $this->input   = [1];
     
-    $this->request = new Request($this->method, $this->uri, $this->host, $this->input);
+    $this->request = new Request($this->method, $this->uri, $this->host, $this->headers, $this->input);
   }
   
   public function testAccessors() {

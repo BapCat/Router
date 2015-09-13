@@ -18,7 +18,9 @@
     "bapcat/propifier": "^1.1.0",
     "bapcat/remodel": "dev-master",
     "bapcat/values": "dev-master",
-    "raphhh/trex-reflection": "^0.1.1"
+    "raphhh/trex-reflection": "^0.1.1",
+    "bapcat/tailor": "dev-master",
+    "bapcat/facade": "dev-master"
   },
   "autoload": {
     "psr-4": {
