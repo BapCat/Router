@@ -20,6 +20,9 @@
     "raphhh/trex-reflection": "^0.1.1",
     "bapcat/request": "^0.2.1"
   },
+  "require-dev": {
+    "phpunit/phpunit": "^5.0"
+  },
   "autoload": {
     "psr-4": {
       "BapCat\\Router\\": "src/"
