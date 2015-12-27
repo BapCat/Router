@@ -57,7 +57,7 @@ Phi::instance()->bind(UserRepository::class, $user_repo);
 
 
 
-$router = new BapCat\Router\Router(Phi::instance());
+$router = new BapCat\Router\Router($ioc);
 
 /*$router->map('user', 'user_id', function(UserId $user_id) use($user_repo) {
   return $user_repo->withId($user_id)->first();
@@ -67,12 +67,12 @@ $router->get('', '/', function() {
   return 'Test';
 });
 
-$router->get('', '/test', function(Text $test = null) {
-  if($test === null) {
+$router->get('', '/test', function(Request $request) {
+  if(!$request->query->has('test')) {
     return 'You can pass me some text using the \'test\' GET query!';
   }
   
-  return $test;
+  return $request->query->get('test');
 });
 
 $router->get('', '/user', function(User $user) {
@@ -80,6 +80,8 @@ $router->get('', '/user', function(User $user) {
 });
 
 $request = Request::fromGlobals();
+
+$ioc->bind(Request::class, $request);
 
 try {
   echo $router->routeRequestToAction($request);

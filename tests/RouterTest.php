@@ -1,7 +1,7 @@
 <?php
 
 use BapCat\Phi\Phi;
-use BapCat\Router\Request;
+use BapCat\Request\Request;
 use BapCat\Router\Router;
 use BapCat\Values\HttpMethod;
 use BapCat\Values\Text;
@@ -24,11 +24,11 @@ class RouterTest extends PHPUnit_Framework_TestCase {
   }
   
   public function testRoutingRequest() {
-    $request = new Request(HttpMethod::POST(), '/test', 'example.com', [], ['test' => 'test']);
+    $request = new Request(HttpMethod::POST(), '/test', 'example.com', [], [], [], ['test' => 'test']);
     
     $called = false;
-    $this->router->post('', '/test', function(Text $test) use(&$called) {
-      $this->assertEquals('test', $test);
+    $this->router->post('', '/test', function(Request $request) use(&$called) {
+      $this->assertEquals('test', $request->input->get('test'));
       $called = true;
     });
     

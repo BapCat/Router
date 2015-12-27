@@ -79,9 +79,14 @@ class Router {
   public function routeRequestToAction(Request $request) {
     try {
       $action = $this->findActionByRoute($request->method, $this->trimSlashes($request->uri));
-      $params = $this->getCallableTypeHints($action);
       
-      $args = $this->makeArguments($params, $request);
+      $response = $this->ioc->call($action, [$request]);
+      
+      if($response instanceof JsonSerializable || is_array($response) || $request->is_json) {
+        return json_encode($response);
+      }
+      
+      return $response;
     } catch(RoutingException $ex) {
       if($request->is_json) {
         return json_encode($ex);
@@ -89,14 +94,6 @@ class Router {
       
       throw $ex;
     }
-    
-    $response = $this->ioc->call($action, $args);
-    
-    if($response instanceof JsonSerializable || is_array($response) || $request->is_json) {
-      return json_encode($response);
-    }
-    
-    return $response;
   }
   
   private function makeArguments(array $params, Request $request) {
@@ -115,8 +112,8 @@ class Router {
             $name .= '_id';
           }
           
-          if($request->query->has($name)) {
-            $args[$source] = $this->ioc->make($params[$name]['name'], [$request->query->get($name)]);
+          if($request->input->has($name)) {
+            $args[$source] = $this->ioc->make($params[$name]['name'], [$request->input->get($name)]);
             
             if($is_entity) {
               $repo = $this->ioc->make($params[$source]['name'] . 'Repository');
