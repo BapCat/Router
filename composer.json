@@ -4,7 +4,6 @@
   "license": "GPLv3",
   "homepage": "http://github.com/BapCat/Router",
   "keywords": [],
-  "minimum-stability": "dev",
   "authors": [
     {
       "name": "Corey Frenette",
@@ -12,13 +11,14 @@
     }
   ],
   "require": {
-    "php": ">=5.5.0",
-    "bapcat/interfaces": "dev-master as 1.0",
-    "bapcat/phi": "dev-master",
-    "bapcat/propifier": "^1.1.0",
-    "bapcat/remodel": "dev-master",
-    "bapcat/values": "dev-master",
-    "raphhh/trex-reflection": "^0.1.1"
+    "php": ">=5.6.0",
+    "bapcat/interfaces": "^1.1",
+    "bapcat/phi": "^2.0",
+    "bapcat/propifier": "^1.1",
+    "bapcat/remodel": "^0.2",
+    "bapcat/values": "^0.1",
+    "raphhh/trex-reflection": "^0.1.1",
+    "bapcat/request": "^0.2.1"
   },
   "autoload": {
     "psr-4": {

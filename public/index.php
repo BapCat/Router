@@ -1,7 +1,7 @@
 <?php
 
 use BapCat\Phi\Phi;
-use BapCat\Router\Request;
+use BapCat\Request\Request;
 use BapCat\Router\Router;
 use BapCat\Router\RouteNotFoundException;
 use BapCat\Values\HttpMethod;
@@ -11,24 +11,19 @@ require __DIR__ . '/../vendor/autoload.php';
 
 
 
-use BapCat\Persist\Drivers\Filesystem\FilesystemDriver;
-use BapCat\Tailor\Tailor;
-use BapCat\Remodel\RemodelTemplateFinder;
-use BapCat\Tailor\Compilers\PhpCompiler;
+$ioc = Phi::instance();
+
+use BapCat\Persist\Drivers\Local\LocalDriver;
+use BapCat\Remodel\Registry;
+use BapCat\Remodel\EntityDefinition;
+
 use Illuminate\Database\MySqlConnection;
 
 // Grab filesystem directories
-$persist = new FilesystemDriver(__DIR__ . '/..');
-$compiled = $persist->get('/cache');
+$persist = new LocalDriver(__DIR__ . '/..');
+$cache = $persist->getDirectory('/cache');
 
-// TemplateFinders are able to find and use raw/compiled templates
-$finder = new RemodelTemplateFinder($compiled);
-
-// Compilers translate raw templates into compiled ones
-$compiler = new PhpCompiler();
-
-// Create an instance of Tailor to actually do the autoloading
-$tailor = new Tailor($finder, $compiler);
+$registry = new Registry($ioc, $cache);
 
 $connection = new MySqlConnection(new PDO('mysql:host=localhost;dbname=test', 'root', ''), 'test');
 
@@ -36,8 +31,6 @@ $connection = new MySqlConnection(new PDO('mysql:host=localhost;dbname=test', 'r
 
 
 
-use BapCat\Remodel\Registry;
-use BapCat\Remodel\EntityDefinition;
 use BapCat\Values\Email;
 
 use BapCat\CoolThing\User;
@@ -45,8 +38,6 @@ use BapCat\CoolThing\UserId;
 use BapCat\CoolThing\UserGateway;
 use BapCat\CoolThing\UserRepository;
 use BapCat\CoolThing\UserNotFoundException;
-
-$registry = new Registry($tailor);
 
 $def = new EntityDefinition(User::class);
 $def->required('email',      Email::class);
@@ -88,15 +79,7 @@ $router->get('', '/user', function(User $user) {
   return $user;
 });
 
-//$request = Request::fromGlobals();
-
-$request = new Request(
-  HttpMethod::memberByKey($_SERVER['REQUEST_METHOD'], false),
-  strtok($_SERVER['REQUEST_URI'], '?'),
-  $_SERVER['HTTP_HOST'],
-  array_merge(getallheaders(), ['Accept' => 'application/ajax']),
-  $_GET
-);
+$request = Request::fromGlobals();
 
 try {
   echo $router->routeRequestToAction($request);

@@ -2,6 +2,7 @@
 
 use BapCat\Interfaces\Ioc\Ioc;
 use BapCat\Remodel\Entity;
+use BapCat\Request\Request;
 use BapCat\Values\HttpMethod;
 
 use TRex\Reflection\CallableReflection;
@@ -114,8 +115,8 @@ class Router {
             $name .= '_id';
           }
           
-          if($request->hasInput($name)) {
-            $args[$source] = $this->ioc->make($params[$name]['name'], [$request->input[$name]]);
+          if($request->query->has($name)) {
+            $args[$source] = $this->ioc->make($params[$name]['name'], [$request->query->get($name)]);
             
             if($is_entity) {
               $repo = $this->ioc->make($params[$source]['name'] . 'Repository');
