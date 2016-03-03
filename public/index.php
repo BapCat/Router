@@ -67,6 +67,20 @@ $router->get('', '/', function() {
   return 'Test';
 });
 
+require __DIR__ . '/TestValidatedRequest.php';
+
+$router->get('', '/validate', function(TestValidatedRequest $test) {
+  if(!$test->validated) {
+    return 'BAD';
+  }
+  
+  return 'GOOD';
+});
+
+$router->get('', '/user/:user', function($user) {
+  return $user;
+});
+
 $router->get('', '/test', function(Request $request) {
   if(!$request->query->has('test')) {
     return 'You can pass me some text using the \'test\' GET query!';
@@ -75,9 +89,9 @@ $router->get('', '/test', function(Request $request) {
   return $request->query->get('test');
 });
 
-$router->get('', '/user', function(User $user) {
+/*$router->get('', '/user', function(User $user) {
   return $user;
-});
+});*/
 
 $request = Request::fromGlobals();
 
