@@ -84,7 +84,6 @@ class Router {
     try {
       $action = $this->findActionByRoute($request->method, $this->trimSlashes($request->uri));
       
-      var_dump($action['action']);
       $response = $this->ioc->call($action['action'], [$request] + $action['dynamic']);
       
       if($response instanceof JsonSerializable || is_array($response) || $request->is_json) {
