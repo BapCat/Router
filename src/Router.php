@@ -106,6 +106,7 @@ class Router {
       }
       
       if(($request->is_json && $response instanceof JsonSerializable) || is_array($response)) {
+        header('Content-Type: application/json');
         return json_encode($response);
       }
       
