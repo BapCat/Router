@@ -40,11 +40,9 @@ use BapCat\CoolThing\UserRepository;
 use BapCat\CoolThing\UserNotFoundException;
 
 $def = new EntityDefinition(User::class);
-$def->required('email',      Email::class);
-$def->optional('first_name', Text::class);
-$def->optional('last_name',  Text::class);
-$def->virtual('full_email',  Text::class, ['first_name', "' '", 'last_name', "' <'", 'email', "'>'"]);
-$def->virtual('full_name',   Text::class, ['first_name', "' '", 'last_name']);
+$def->required('email', Email::class);
+$def->optional('name', Text::class);
+$def->timestamps();
 
 $registry->register($def);
 
@@ -58,10 +56,6 @@ Phi::instance()->bind(UserRepository::class, $user_repo);
 
 
 $router = new BapCat\Router\Router($ioc);
-
-/*$router->map('user', 'user_id', function(UserId $user_id) use($user_repo) {
-  return $user_repo->withId($user_id)->first();
-});*/
 
 $router->get('', '/', function() {
   return 'Test';
@@ -77,7 +71,7 @@ $router->get('', '/validate', function(TestValidatedRequest $test) {
   return 'GOOD';
 });
 
-$router->get('', '/user/:user', function($user) {
+$router->get('', '/user/:user', function(User $user) {
   return $user;
 });
 
@@ -88,10 +82,6 @@ $router->get('', '/test', function(Request $request) {
   
   return $request->query->get('test');
 });
-
-/*$router->get('', '/user', function(User $user) {
-  return $user;
-});*/
 
 $request = Request::fromGlobals();
 

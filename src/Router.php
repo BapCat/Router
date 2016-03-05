@@ -1,10 +1,17 @@
 <?php namespace BapCat\Router;
 
 use BapCat\Interfaces\Ioc\Ioc;
+use BapCat\Remodel\Entity;
+use BapCat\Remodel\EntityNotFoundException;
 use BapCat\Request\Request;
 use BapCat\Values\HttpMethod;
 
+use TRex\Reflection\CallableReflection;
+
+use InvalidArgumentException;
 use JsonSerializable;
+use ReflectionClass;
+use TypeError;
 
 class Router {
   private $ioc;
@@ -82,11 +89,23 @@ class Router {
   
   public function routeRequestToAction(Request $request) {
     try {
-      $action = $this->findActionByRoute($request->method, $this->trimSlashes($request->uri));
+      $action = $this->findActionByRoute($request->method, $request->uri);
       
-      $response = $this->ioc->call($action['action'], [$request] + $action['dynamic']);
+      $params = $this->getCallableTypeHints($action['action']);
       
-      if($response instanceof JsonSerializable || is_array($response) || $request->is_json) {
+      try {
+        $args = $this->makeArguments($params, $action['dynamic'], $request);
+        
+        $response = $this->ioc->call($action['action'], [$request] + $args);
+      } catch(TypeError $err) {
+        throw new RouteNotFoundException($request->method, $request->uri);
+      } catch(EntityNotFoundException $ex) {
+        throw new RouteNotFoundException($request->method, $request->uri);
+      } catch(InvalidArgumentException $ex) {
+        throw new RouteNotFoundException($request->method, $request->uri);
+      }
+      
+      if(($request->is_json && $response instanceof JsonSerializable) || is_array($response)) {
         return json_encode($response);
       }
       
@@ -98,6 +117,50 @@ class Router {
       
       throw $ex;
     }
+  }
+  
+  private function getCallableTypeHints(callable $action) {
+    $reflector = new CallableReflection($action);
+    $method = $reflector->getReflector();
+    $params = $method->getParameters();
+    
+    $mapped = [];
+    foreach($params as $param) {
+      if($param->getClass() !== null) {
+        $mapped[$param->getName()] = ['name' => $param->getClass()->getName(), 'optional' => $param->isOptional()];
+      }
+    }
+    
+    return $mapped;
+  }
+  
+  private function makeArguments(array $params, array $dynamic, Request $request) {
+    $args = [];
+    $problems = [];
+    
+    foreach($dynamic as $name => $value) {
+      if(array_key_exists($name, $params)) {
+        $source = $name;
+        $class = new ReflectionClass($params[$name]['name']);
+        $is_entity = $class->implementsInterface(Entity::class);
+        
+        if($is_entity) {
+          $params[$name . '_id']['name'] = $params[$name]['name'] . 'Id';
+          $name .= '_id';
+        }
+        
+        $args[$source] = $this->ioc->make($params[$name]['name'], [$value]);
+        
+        if($is_entity) {
+          $repo = $this->ioc->make($params[$source]['name'] . 'Repository');
+          $args[$source] = $repo->withId($args[$source])->first();
+        }
+      } else {
+        $args[$name] = $value;
+      }
+    }
+    
+    return $args;
   }
   
   private function trimSlashes($route) {
