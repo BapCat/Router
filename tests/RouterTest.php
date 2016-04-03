@@ -4,7 +4,6 @@ use BapCat\Phi\Phi;
 use BapCat\Request\Request;
 use BapCat\Router\Router;
 use BapCat\Values\HttpMethod;
-use BapCat\Values\Text;
 
 class RouterTest extends PHPUnit_Framework_TestCase {
   private $router;

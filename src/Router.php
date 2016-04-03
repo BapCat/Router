@@ -58,7 +58,7 @@ class Router {
     $dynamic = [];
     
     $sub_route = &$this->routes;
-    foreach($segments as $index => $segment) {
+    foreach($segments as $segment) {
       if(!array_key_exists($segment, $sub_route)) {
         $real_segment = $this->findDynamicSubroute($sub_route);
         
@@ -137,7 +137,6 @@ class Router {
   
   private function makeArguments(array $params, array $dynamic, Request $request) {
     $args = [];
-    $problems = [];
     
     foreach($dynamic as $name => $value) {
       if(array_key_exists($name, $params)) {
