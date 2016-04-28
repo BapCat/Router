@@ -63,12 +63,18 @@ $router->get('', '/', function() {
 
 require __DIR__ . '/TestValidatedRequest.php';
 
-$router->get('', '/validate', function(TestValidatedRequest $test) {
+$router->get('', '/landing/:site', function(TestValidatedRequest $test, Text $site) {
   if(!$test->validated) {
-    return 'BAD';
+    echo "Validation failed!<br>\n";
+    
+    foreach($test->validation_errors as $err) {
+      echo "$err<br>\n";
+    }
+    
+    return;
   }
   
-  return 'GOOD';
+  return "Site: {$site}<br>\nID: {$test->id}<br>\nAP: {$test->ap}<br>\nURL: {$test->url}<br>\n";
 });
 
 $router->get('', '/user/:user', function(User $user) {
@@ -90,5 +96,6 @@ $ioc->bind(Request::class, $request);
 try {
   echo $router->routeRequestToAction($request);
 } catch(RouteNotFoundException $ex) {
-  echo 'Route not found: ' . $ex->getRoute();
+  echo 'Route not found: ' . $ex->getRoute() . "\n";
+  var_dump($ex);
 }

@@ -11,10 +11,12 @@ abstract class RoutingException extends Exception implements JsonSerializable {
   private $method;
   private $route;
   
-  public function __construct(HttpStatusCode $status, HttpMethod $method, $route) {
+  public function __construct(HttpStatusCode $status, HttpMethod $method, $route, $previous = null) {
     $this->status = $status;
     $this->method = $method;
     $this->route  = $route;
+    
+    parent::__construct("HTTP Error $status: $method $route", 0, $previous);
   }
   
   public function jsonSerialize() {

@@ -6,8 +6,8 @@ use BapCat\Values\HttpStatusCode;
 class RouteValidationException extends RoutingException {
   private $problems;
   
-  public function __construct(HttpMethod $method, $route, array $problems) {
-    parent::__construct(HttpStatusCode::BAD_REQUEST(), $method, $route);
+  public function __construct(HttpMethod $method, $route, array $problems, $previous = null) {
+    parent::__construct(HttpStatusCode::BAD_REQUEST(), $method, $route, $previous);
     
     $this->problems = $problems;
   }

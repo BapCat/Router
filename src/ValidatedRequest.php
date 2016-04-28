@@ -2,10 +2,11 @@
 
 use BapCat\Collection\Exceptions\NoSuchKeyException;
 use BapCat\Interfaces\Ioc\Ioc;
+use BapCat\Interfaces\Values\Value;
 use BapCat\Propifier\PropifierTrait;
 use BapCat\Request\Request;
 
-use Exception;
+use InvalidArgumentException;
 
 abstract class ValidatedRequest {
   use PropifierTrait {
@@ -23,35 +24,21 @@ abstract class ValidatedRequest {
     $this->ioc = $ioc;
     $this->request = $request;
     
-    $this->validate();
-  }
-  
-  protected function required($name, $type) {
-    try {
-      $this->set($name, $this->make($name, $type));
-    } catch(Exception $ex) {
-      $this->errors[$name] = $ex;
+    $set = function($name, Value $value) {
+      $this->set($name, $value);
+    };
+    
+    $err = function($name, $msg) {
+      $this->errors[$name] = $msg;
       $this->validated = false;
-    }
+    };
+    
+    $this->validateInput(new Validator($ioc, $request->input, $set, $err));
+    $this->validateQuery(new Validator($ioc, $request->query, $set, $err));
   }
   
-  protected function optional($name, $type) {
-    try {
-      $this->set($name, $this->make($name, $type));
-    } catch(NoSuchKeyException $ex) {
-      $this->vars[$name] = null;
-    } catch(Exception $ex) {
-      $this->errors[$name] = $ex;
-      $this->validated = false;
-    }
-  }
-  
-  protected function set($name, $value) {
+  protected function set($name, Value $value = null) {
     $this->vars[$name] = $value;
-  }
-  
-  private function make($name, $type) {
-    return $this->ioc->make($type, [$this->request->input->get($name)]);
   }
   
   public function __get($name) {
@@ -62,13 +49,14 @@ abstract class ValidatedRequest {
     return $this->___get($name);
   }
   
-  protected abstract function validate();
+  protected abstract function validateInput(Validator $validator);
+  protected abstract function validateQuery(Validator $validator);
   
   protected function getValidated() {
     return $this->validated;
   }
   
   protected function getValidationErrors() {
-    return $this->validation_errors;
+    return $this->errors;
   }
 }

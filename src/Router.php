@@ -97,12 +97,12 @@ class Router {
         $args = $this->makeArguments($params, $action['dynamic'], $request);
         
         $response = $this->ioc->call($action['action'], [$request] + $args);
-      } catch(TypeError $err) {
-        throw new RouteNotFoundException($request->method, $request->uri);
-      } catch(EntityNotFoundException $ex) {
-        throw new RouteNotFoundException($request->method, $request->uri);
-      } catch(InvalidArgumentException $ex) {
-        throw new RouteNotFoundException($request->method, $request->uri);
+      } catch(TypeError $e) {
+        throw new RouteNotFoundException($request->method, $request->uri, $e);
+      } catch(EntityNotFoundException $e) {
+        throw new RouteNotFoundException($request->method, $request->uri, $e);
+      } catch(InvalidArgumentException $e) {
+        throw new RouteNotFoundException($request->method, $request->uri, $e);
       }
       
       if(($request->is_json && $response instanceof JsonSerializable) || is_array($response)) {
