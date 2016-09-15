@@ -15,7 +15,7 @@
     "bapcat/interfaces": "^1.1",
     "bapcat/phi": "^2.0",
     "bapcat/propifier": "^1.1",
-    "bapcat/remodel": "^0.2",
+    "bapcat/remodel": "^0.3",
     "bapcat/values": "^0.1",
     "raphhh/trex-reflection": "^0.1.1",
     "bapcat/request": "^0.2.1"

@@ -14,10 +14,12 @@ require __DIR__ . '/../vendor/autoload.php';
 $ioc = Phi::instance();
 
 use BapCat\Persist\Drivers\Local\LocalDriver;
-use BapCat\Remodel\Registry;
 use BapCat\Remodel\EntityDefinition;
+use BapCat\Remodel\Registry;
+use BapCat\Remodel\RemodelConnection;
 
-use Illuminate\Database\MySqlConnection;
+use Illuminate\Database\Query\Grammars\MySqlGrammar;
+use Illuminate\Database\Query\Processors\MySqlProcessor;
 
 // Grab filesystem directories
 $persist = new LocalDriver(__DIR__ . '/..');
@@ -25,7 +27,7 @@ $cache = $persist->getDirectory('/cache');
 
 $registry = new Registry($ioc, $cache);
 
-$connection = new MySqlConnection(new PDO('mysql:host=localhost;dbname=test', 'root', ''), 'test');
+$connection = new RemodelConnection(new PDO('mysql:host=localhost;dbname=test', 'root', ''), new MySqlGrammar(), new MySqlProcessor());
 
 
 
