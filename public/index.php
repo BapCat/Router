@@ -1,7 +1,7 @@
 <?php
 
 use BapCat\Phi\Phi;
-use BapCat\Request\Request;
+use BapCat\Request\RequestFromGlobals;
 use BapCat\Router\Router;
 use BapCat\Router\RouteNotFoundException;
 use BapCat\Values\HttpMethod;
@@ -91,7 +91,7 @@ $router->get('', '/test', function(Request $request) {
   return $request->query->get('test');
 });
 
-$request = Request::fromGlobals();
+$request = new RequestFromGlobals();
 
 $ioc->bind(Request::class, $request);
 
